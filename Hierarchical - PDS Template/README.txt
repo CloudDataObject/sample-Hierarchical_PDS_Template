@@ -41,14 +41,3 @@ var jsdoSettings = {
       "displayFields": "CustNum,Name",
       "resourceName": "Customer"
 }; 
- 
-Example jsdoSetttings object for Rollbase:
-Note: Use the allobjects.json catalog or define an object specific catalog as shown below using Progress Data Catalogs in Settings.
-
-var jsdoSettings = {    
-      "serviceURI": "https://www.rollbase.com/rest/jsdo",
-      "catalogURIs": "https://www.rollbase.com/rest/jsdo/catalog/Contact.json",     
-      "authenticationModel": "Form",
-      "displayFields": "name",
-      "resourceName": "Contact"
-}; 
