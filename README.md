@@ -1,7 +1,8 @@
 # sample-Hierarchical_PDS_Template
 This app demonstrates the usage of hierarchical data using Keno UI List View control with JSDO and JSDO dialect
 
-The app is accessible by either selecting the “Try in AppBuilder” button, or you can manually download the zip file by selecting the “Download ZIP” button above. Note: The app is not compatible with the Telerik Platform Views service.
+The app is accessible by either selecting the “Try in AppBuilder” button, or you can manually download the zip file by selecting the “Download ZIP” button above. 
+Note: The app is not compatible with the Telerik Platform Views service.
 
 <a href="https://platform.telerik.com/#appbuilder/clone/https://github.com/CloudDataObject/sample-Hierarchical_PDS_Template">Try in AppBuilder</a>
 
@@ -9,14 +10,15 @@ This app can be cloned in the Telerik Platform (by selecting above button) to bu
 
 This sample is a fully functional CRUD app utilizing all capabilities found in the default Progress Data Service template. It makes use of the JavaScript Data Object dialect of the Kendo UI DataSource to provide data to the app's default listview control, which, in turn, utilizes the JavaScript data object (JSDO) to access the data and operations of a Mobile resource provided by a remote data service.
 
-The app can support anonymous, form, or basic authentication to an OpenEdge or Rollbase server using the JSDO Session management, depending upon the corresponding backend's authentication model. The current configuration of the sample app supports the anonymous model.
+The app can support anonymous, form, or basic authentication to an OpenEdge server using the JSDO Session management, depending upon the corresponding backend's authentication model. The current configuration of the sample app supports the anonymous model.
 
 In addition, it provides the user with the ability to perform CUD operations (create, update, and delete) across parent and child datasources.
 
-This sample uses the same JSDO instance for both parent and child datasources
-Possess usage of readLocal and autoSave properties at JSDO datasource
-Uses PDS template which is available as part of Telerik Platform
-Possess JSDO 4.3
+* This sample uses the same JSDO instance for both parent and child datasources
+* Possess usage of readLocal and autoSave properties at JSDO datasource
+* Uses PDS template which is available as part of Telerik Platform
+* Possess JSDO 4.3 version
+
 For more information, download the sample app to the Telerik Platform, and see its README.txt.
 
 ## Running the Sample
