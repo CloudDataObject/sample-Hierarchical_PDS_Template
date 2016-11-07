@@ -19,12 +19,17 @@ Uses PDS template which is available as part of Telerik Platform
 Possess JSDO 4.3
 For more information, download the sample app to the Telerik Platform, and see its README.txt.
 
-Running the Sample
+## Running the Sample
 
-With the Telerik Platform, you can deploy apps in the device simulator and on device wirelessly or via cable connection. For more information about running apps, see Running Your App.
+With the Telerik Platform, you can deploy apps in the device simulator and on device wirelessly or via cable connection. For more information about running apps, see [Running Your App][Running Your App].
 
 To test the LiveSync JavaScript API sample, choose one of the following deployment methods.
 
-Build your project for the companion app and deploy it via QR code. Build your project as an application package with the Debug build configuration. License
+Build your project for the companion app and deploy it via QR code. Build your project as an application package with the Debug build configuration. 
 
-This sample is licensed under the Apache License, Version 2.0. For more information, see License.
+## License
+
+This sample is licensed under the Apache License, Version 2.0. For more information, see [License][License].
+
+[License]: https://github.com/CloudDataObject/sample-Hierarchical_PDS_Template/blob/master/LICENSE
+[Running Your App]: http://docs.telerik.com/platform/appbuilder/testing-your-app/run-your-app
