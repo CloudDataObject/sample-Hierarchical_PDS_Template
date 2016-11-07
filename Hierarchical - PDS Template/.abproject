@@ -1,0 +1,45 @@
+{
+  "ProjectName": "Hierarchical - PDS Template",
+  "ProjectGuid": "3a3e8aa0-af69-4d03-b675-adf1a4ca10e0",
+  "projectVersion": 1,
+  "AppIdentifier": "com.telerik.HierarchicalDataPDSService",
+  "DisplayName": "Hierarchical Data-PDS Service",
+  "Author": "",
+  "Description": "Hierarchical Data-PDS Service",
+  "BundleVersion": "1.0",
+  "AndroidVersionCode": "1",
+  "iOSDeviceFamily": [
+    "1",
+    "2"
+  ],
+  "iOSBackgroundMode": [],
+  "ProjectTypeGuids": "{070BCB52-5A75-4F8C-A973-144AF0EAFCC9}",
+  "FrameworkVersion": "4.0.0",
+  "AndroidPermissions": [
+    "android.permission.INTERNET"
+  ],
+  "DeviceOrientations": [
+    "Portrait",
+    "Landscape"
+  ],
+  "AndroidHardwareAcceleration": "true",
+  "iOSStatusBarStyle": "Default",
+  "Framework": "Cordova",
+  "WP8TileTitle": "",
+  "WP8Publisher": "",
+  "WP8Capabilities": [
+    "ID_CAP_NETWORKING",
+    "ID_CAP_WEBBROWSERCOMPONENT"
+  ],
+  "WP8Requirements": [],
+  "WP8PublisherID": "{f81d9581-9ff5-47bd-b390-51666ea1b9e0}",
+  "WP8ProductID": "{7962b434-96ea-4e93-b2f4-bf992587406d}",
+  "WPSdk": "8.0",
+  "WP8PackageIdentityName": "1234Telerik.HierarchicalDataPDSService",
+  "WP8WindowsPublisherName": "CN=Telerik",
+  "WP8SupportedResolutions": [
+    "ID_RESOLUTION_WVGA",
+    "ID_RESOLUTION_WXGA",
+    "ID_RESOLUTION_HD720P"
+  ]
+}

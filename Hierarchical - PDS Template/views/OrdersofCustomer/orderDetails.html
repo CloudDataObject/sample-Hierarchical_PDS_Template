@@ -1,0 +1,44 @@
+<!-- Detail View -->
+  
+<div id="detail"
+     data-role="view" 
+     data-title="Details"
+     data-show="app.viewModels.Orders_of_Cust_dataViewModel.onShowDetailView" 
+     data-hide="app.viewModels.Orders_of_Cust_dataViewModel.onHideDetailView"  
+     data-model="app.viewModels.Orders_of_Cust_dataViewModel">
+    
+    <header data-role="header">
+        <div data-role="navbar">
+            <a class="nav-button" data-role="button"  href="views/OrdersofCustomer/ordersofCustomer.html" data-align="left">Back</a>
+            <span data-role="view-title"></span> 
+            <a id="editButton" data-role="button" href="views/OrdersofCustomer/editOrderDetailView.html" data-align="right">Edit</a>
+        </div>
+    </header>
+    
+    <div id="detailForm">
+        <ul id="detailList"
+            data-role="listview"   
+            data-style="inset">
+            <li>
+                <label><input type="text" readonly="true" data-bind="value: selectedRow.OrderNum"/>Order Num:</label>
+            </li>
+            <li>
+                <label><input type="text" readonly="true" data-bind="value: selectedRow.SalesRep"/>SalesRep:</label>
+            </li>
+            <li>
+                <label><input type="text" readonly="true" data-bind="value: selectedRow.OrderStatus"/>Order Status:</label>
+            </li>
+            <li>
+                <label><input type="text" readonly="true" data-bind="value: selectedRow.CustNum"/>Customer Num:</label>
+            </li>          
+            <li>
+                <label><input type="text" readonly="true" data-bind="value: selectedRow.Carrier"/>Carrier:</label>
+            </li>           
+ 		</ul>
+    </div>         
+</div>
+
+
+
+
+

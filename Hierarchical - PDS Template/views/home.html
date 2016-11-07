@@ -1,0 +1,43 @@
+<!-- Home View -->
+
+<div id="home"
+     data-role="view"
+     data-title="Home"
+     data-show="app.onShowHomeView">
+
+    <br />
+    <div style="float: left; width: 20%;">
+        <img src="img/Progress_Green.png" />
+    </div>
+
+    <div style="float: right; width: 80%;">
+        <br />
+        <br />
+        <h1>Home Page</h1>
+    </div>
+
+    <div style="float: left; width: 100%;">
+        <h3>This sample mobile app demonstrates usage of readLocal, autoSave properties pertain to JSDO DataSource (or JSDO Dialect) which are used in integration with Kendo DataSource. This mobile app is built using Telerik Platform &trade; and uses a Progress Data Service.
+            <br />
+            <br />
+            The built-in session management and data access to a Progress Data Service is a jumpstart to building your 
+            mobile app(s) for a Progress OpenEdge or Progress Rollbase server.
+            <br />
+            <br />            
+        </h3>
+    </div>
+</div>
+
+<div id="modalview-displayMsg" 
+    data-role="modalview"  data-init="app.onInitDisplayMessage">
+    <div data-role="header">
+    	<div data-role="navbar">
+        	<span id="modalViewTitle">Title</span>
+        </div>
+    </div>
+
+    <p align="center" id="modalViewMessage" data-bind="">Appropriate error message goes here</p>
+    <p align="center">
+        <button class="dlgButton" style="color:black; background-color: light gray" data-role="button" data-click="app.onCloseDisplayMessage">Ok</button>
+    </p>
+</div>
