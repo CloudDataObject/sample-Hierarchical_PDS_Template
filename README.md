@@ -3,7 +3,7 @@ This app demonstrates the usage of hierarchical data using Keno UI List View con
 
 The app is accessible by either selecting the “Try in AppBuilder” button, or you can manually download the zip file by selecting the “Download ZIP” button above. Note: The app is not compatible with the Telerik Platform Views service.
 
-Try in AppBuilder
+<a href="https://platform.telerik.com/#appbuilder/clone/https%3A%2F%2Fgithub.com%2FCloudDataObject%2Fsample-Hierarchical_PDS_Template">Try in AppBuilder</a>
 
 This app can be cloned in the Telerik Platform (by selecting above button) to build a Hybrid Mobile App. You can explore and modify the code, and build and run it on Android and iOS devices.
 
