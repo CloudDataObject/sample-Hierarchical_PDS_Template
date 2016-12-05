@@ -17,7 +17,7 @@ In addition, it provides the user with the ability to perform CUD operations (cr
 * This sample uses the same JSDO instance for both parent and child datasources
 * Possess usage of readLocal and autoSave properties at JSDO datasource
 * Uses PDS template which is available as part of Telerik Platform
-* Possess JSDO 4.3 version
+* Possess JSDO 4.3.1 version
 
 For more information, download the sample app to the Telerik Platform, and see its README.txt.
 
