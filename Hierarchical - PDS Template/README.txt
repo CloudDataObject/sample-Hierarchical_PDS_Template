@@ -12,7 +12,7 @@ In order to run your app, you must set the properties in the jsdoSettings object
    - This sample uses the same JSDO instance for both parent and child datasources
    - Possess usage of readLocal and autoSave properties at JSDO datasource
    - Uses PDS template which is available as part of Telerik Platform
-   - Possess JSDO 4.3 
+   - Possess JSDO 4.3.1
 
 jsdoSettings properties:
 ------------------------
