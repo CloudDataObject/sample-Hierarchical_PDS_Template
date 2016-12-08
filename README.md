@@ -1,5 +1,5 @@
 # sample-Hierarchical_PDS_Template
-This app demonstrates the usage of hierarchical data using Keno UI List View control with JSDO and JSDO dialect
+This app demonstrates the usage of hierarchical data using Kendo UI List View control with JSDO and JSDO dialect
 
 The app is accessible by either selecting the “Try in AppBuilder” button, or you can manually download the zip file by selecting the “Download ZIP” button above. 
 Note: The app is not compatible with the Telerik Platform Views service.
