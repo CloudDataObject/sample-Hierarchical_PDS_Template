@@ -1,4 +1,4 @@
-/*
+/* 
 Progress JSDO Version: 4.4.0
 
 Copyright 2012-2017 Progress Software Corporation and/or its subsidiaries or affiliates.
