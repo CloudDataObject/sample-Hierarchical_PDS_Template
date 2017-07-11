@@ -3,24 +3,24 @@
 <div id="editDetail"
      data-role="view" 
      data-title="Edit Details" 
-     data-show="app.viewModels.Orders_of_Cust_dataViewModel.onShowEditDetailView" 
-     data-hide="app.viewModels.Orders_of_Cust_dataViewModel.onHideEditDetailView" 
-     data-init="app.viewModels.Orders_of_Cust_dataViewModel.onInitEditDetailView" 
-     data-model="app.viewModels.Orders_of_Cust_dataViewModel">
+     data-show="app.viewModels.childDataViewModel.onShowEditDetailView" 
+     data-hide="app.viewModels.childDataViewModel.onHideEditDetailView" 
+     data-init="app.viewModels.childDataViewModel.onInitEditDetailView" 
+     data-model="app.viewModels.childDataViewModel">
     
     <header data-role="header" data-id="jitterz-default-header">
         <div data-role="navbar">
-            <a id="editDetailCancelButton" data-role="button" data-align="left" data-click="app.viewModels.Orders_of_Cust_dataViewModel.cancelEditDetail" type="button">Cancel</a>
+            <a id="editDetailCancelButton" data-role="button" data-align="left" data-click="app.viewModels.childDataViewModel.cancelEditDetail" type="button">Cancel</a>
             <span data-role="view-title"></span>
-            <a id="editDetailDoneButton" data-role="button" data-align="right" data-click="app.viewModels.Orders_of_Cust_dataViewModel.doneEditDetail"  type="button">Done</a>
+            <a id="editDetailDoneButton" data-role="button" data-align="right" data-click="app.viewModels.childDataViewModel.doneEditDetail"  type="button">Done</a>
         </div>
     </header>
     
     <div data-role="content">
         <ul id="editDetailList"
             data-role="listview"
-            data-init="app.viewModels.Orders_of_Cust_dataViewModel.onInitEditDetailView"
-            data-show="app.viewModels.Orders_of_Cust_dataViewModel.onShowEditDetailView"  
+            data-init="app.viewModels.childDataViewModel.onInitEditDetailView"
+            data-show="app.viewModels.childDataViewModel.onShowEditDetailView"  
             data-style="inset">
             <li>
                 <label><input type="text" readonly="true" data-bind="value: selectedRow.OrderNum"/>Order Num:</label>
@@ -53,8 +53,8 @@
     </div>
     <div class="buttonDiv">
 		<p align="center">
-			<button class="msgButton" data-click="app.viewModels.Orders_of_Cust_dataViewModel.cancelDelete" data-role="button">Cancel</button>
-            <button class="msgButton" data-click="app.viewModels.Orders_of_Cust_dataViewModel.deleteRow" data-role="button">Delete</button>
+			<button class="msgButton" data-click="app.viewModels.childDataViewModel.cancelDelete" data-role="button">Cancel</button>
+            <button class="msgButton" data-click="app.viewModels.childDataViewModel.deleteRow" data-role="button">Delete</button>
        	</p>
     </div>
 </div>

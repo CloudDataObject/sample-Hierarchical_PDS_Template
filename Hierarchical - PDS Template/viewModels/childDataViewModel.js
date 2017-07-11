@@ -1,14 +1,14 @@
 //'use strict';
 
 (function (parent) {
-    var Orders_of_Cust_dataViewModel = kendo.observable({
+    var childDataViewModel = kendo.observable({
         jsdoDataSource: undefined,
         jsdoModel: undefined,
         selectedRow: {},
         origRow: {},
         resourceName: undefined,
         addMode: false,
-        useSubmit: undefined,
+        hasChanges: false,  // keep track for submit
         currentOperation: undefined,
         onEditDetailView: false,
         doListRefresh: false,
@@ -29,20 +29,20 @@
         onBeforeShow: function() {
             var clistView;   
 
-            clistView = $("#orderofcustomerView").data("kendoMobileListView");
+            clistView = $("#childListView").data("kendoMobileListView");
             if (clistView === undefined) {
-                app.viewModels.Orders_of_Cust_dataViewModel.onInit(this);
+                app.viewModels.childDataViewModel.onInit(this);
             } else if (clistView.dataSource && clistView.dataSource.data().length === 0) {
                 clistView.dataSource.read();
             } 
             else {
-            	    app.viewModels.Orders_of_Cust_dataViewModel.createJSDODataSource();    
+            	    app.viewModels.childDataViewModel.createJSDODataSource();    
             }
                                    
-             // Set list title to some name
-                if (app.viewModels.Orders_of_Cust_dataViewModel.resourceName !== undefined) {
-                    app.changeTitle("Orders of Customer");
-                }
+            // Set list title to some name
+            if (app.viewModels.childDataViewModel.resourceName !== undefined) {
+                app.changeTitle("Orders of Customer");
+            }
         },
         
          onInitMessageModalView: function(e) {
@@ -51,38 +51,35 @@
            
         onInit: function(e) {    
             try {
+                app.views.childDetailView = e.view;
                 // Create Data Source
-                app.viewModels.Orders_of_Cust_dataViewModel.createJSDODataSource();
-                app.views.listView = e.view;
+                app.viewModels.childDataViewModel.createJSDODataSource();
                 
-                if (jsdoSettings && jsdoSettings.displayFields1) {   
-                	fieldNames = jsdoSettings.displayFields1.split(",").join("#</br> #:");
+                if (jsdoSettings && jsdoSettings.childDisplayFields) {   
+                	fieldNames = jsdoSettings.childDisplayFields.split(",").join("#</br> #:");
                 }
                 
                 // Create list
-                // if (jsdoSettings && jsdoSettings.displayFields1) {
-                if (fieldNames){
-                     $("#orderofcustomerView").kendoMobileListView({
-                        dataSource: app.viewModels.Orders_of_Cust_dataViewModel.jsdoDataSource,
+                if (fieldNames) {
+                     $("#childListView").kendoMobileListView({
+                        dataSource: app.viewModels.childDataViewModel.jsdoDataSource,
                         autoBind: false,
                         pullToRefresh: true,
                         appendOnRefresh: false,
                         endlessScroll: true,
                         virtualViewSize: 100,
-                        // template: "#:" + jsdoSettings.displayFields1.split(",").join("#</br> #:") + "#", 
-                         // template: "<a href='views/detailView.html'>" + "#: " + fieldNames + " #</a>",
-                         template: "<a href='views/OrdersofCustomer/orderDetails.html'>" + "#: " + fieldNames + " #</a>",
+                        template: "<a href='views/childViews/childDetailView.html'>" + "#: " + fieldNames + " #</a>",
 
                         click: function(e) {
                             // console.log("e.dataItem._id " + e.dataItem._id);
-                            app.viewModels.Orders_of_Cust_dataViewModel.set("selectedRow", e.dataItem);
-                            // selectedCustNum = e.dataItem;
+                            app.viewModels.childDataViewModel.set("selectedRow", e.dataItem);
+                            // app.viewModels.parentDataViewModel.selectedCustNum = e.dataItem;
                             // alert("Selected Order Number:" +e.dataItem.OrderNum);
                         }
                     });
                 }
                 else {
-                    console.log("Warning: jsdoSettings.displayFields1 not specified");
+                    console.log("Warning: jsdoSettings.childDisplayFields not specified");
                 }
             }
             catch (ex) {    
@@ -91,29 +88,33 @@
         },
         
         createJSDODataSource: function() {
+            var parentDataViewModel = app.viewModels.parentDataViewModel,
+                childDataViewModel = app.viewModels.childDataViewModel;
+
             try { 
                 // create JSDO
                 if (jsdoSettings && jsdoSettings.resourceName) {   
                     
                     // Note: Instead of creating new JSDO instance using the same JSDO which is being used by parent table
-                    this.jsdoModel = jsdo_for_orders;
-                    // this.useSubmit = this.jsdoModel._hasSubmitOperation;
+                    this.jsdoModel = parentDataViewModel.jsdoModel;
                     
                     if (this.jsdoDataSource == undefined) {
                         this.jsdoDataSource = new kendo.data.DataSource({                        
                             type: "jsdo",
-                            // TO_DO - Enter your filtering and sorting options
-                            //serverFiltering: true,
+                            // TO_DO - Enter any sorting options
                             //serverSorting: true,                            
-                            //sort: [ { field: "Name", dir: "desc" } ],
-                            batch: Orders_of_Cust_dataViewModel.useSubmit,
-                            filter: { field: "CustNum", operator: "eq", value: selectedCustNum },
+                            //sort: [ { field: "OrderNum", dir: "desc" } ],
+                            batch: parentDataViewModel.useSubmit,
+                            filter: { field: "CustNum", operator: "eq", value: parentDataViewModel.selectedCustNum },
                             transport: {
-                                // jsdo: this.jsdoModel,
-                                jsdo: jsdo_for_orders,
-                                tableRef: jsdoSettings.tableName1,
+                                jsdo: this.jsdoModel,
+                                tableRef: jsdoSettings.childTableName,
                                 readLocal: true,
-                                autoSave: false
+                                // If there is a submit operation, then childDataSource's autoSave should be false, so all child row changes can be batched together,
+                                // and updates will be sent to backend when Submit btn is selected (which forces call to jsdo.saveChanges(true)).
+                                // If there is no submit operation, then the app will send over changes a single row at a time. so we want autoSave to
+                                // be true, so that we can call childDataSource.sync()
+                                autoSave: !parentDataViewModel.useSubmit
                             },
                             error: function(e) {
                                 console.log("Error: ", e);
@@ -121,22 +122,21 @@
                             
                             change: function(e){
                                 if (e.action === "itemchange") {
-                                    console.log("Order Details got modified ...")
+                                    console.log("Order Details modified ...")
                                 }
                             }                            
                         });                           
                     }
                     else {
-                    	app.viewModels.Orders_of_Cust_dataViewModel.jsdoDataSource.filter({field: "CustNum", operator: "eq", value: selectedCustNum});
-                    	// this.jsdoDataSource.transport.options = {jsdo: jsdo_for_orders, tableRef: jsdoSettings.tableName1, readLocal: true};
+                    	childDataViewModel.jsdoDataSource.filter({field: "CustNum", operator: "eq", value: parentDataViewModel.selectedCustNum});
+                    	// this.jsdoDataSource.transport.options = {jsdo: app.viewModels.parentDataViewModel.jsdoModel, tableRef: jsdoSettings.childTableName, readLocal: true};
                         this.jsdoDataSource.transport.readLocal = true;
-                        this.jsdoDataSource.transport.autoSave=false;
-                        var mylistView = $("#orderofcustomerView").data("kendoMobileListView");                        
-                        $('#orderofcustomerView').getKendoMobileListView().refresh();
-                        $('#orderofcustomerView').getKendoMobileListView().setDataSource(app.viewModels.Orders_of_Cust_dataViewModel.jsdoDataSource);
+                        this.jsdoDataSource.transport.autoSave = !parentDataViewModel.useSubmit;                        
+                        $('#childListView').getKendoMobileListView().refresh();
+                        $('#childListView').getKendoMobileListView().setDataSource(childDataViewModel.jsdoDataSource);
                     }
                                      
-                    // alert("DEBUG ::: JSDO DataSource Filter Options" +(JSON.stringify(app.viewModels.Orders_of_Cust_dataViewModel.jsdoDataSource.filter())));                                       
+                    // alert("DEBUG ::: JSDO DataSource Filter Options" +(JSON.stringify(app.viewModels.childDataViewModel.jsdoDataSource.filter())));                                       
                     
                     this.resourceName = jsdoSettings.resourceName;
                 }
@@ -145,7 +145,7 @@
                 }
            }
            catch(ex) {
-               app.viewModels.Orders_of_Cust_dataViewModel.createDataSourceErrorFn({errorObject: ex});
+               app.viewModels.childDataViewModel.createDataSourceErrorFn({errorObject: ex});
            } 
         },   
         
@@ -156,57 +156,16 @@
                 msg = msg + "\n" + info.errorObject;
             }
             console.log(msg);
-        },
-        
-        displayListButtons: function(view, show) { 
-            var Orders_of_Cust_dataViewModel = app.viewModels.Orders_of_Cust_dataViewModel,
-                jsdo = Orders_of_Cust_dataViewModel.jsdoModel,
-                jsdoDataSource = Orders_of_Cust_dataViewModel.jsdoDataSource,
-                enableSubmit = false,
-                enableErrors = false;
-            
-            if (show) {
-                
-                if (Orders_of_Cust_dataViewModel.useSubmit === true) {
-                    view.footer.find("#submitBtn").css("visibility", "visible");
-                    view.footer.find("#errorBtn").css("visibility", "visible");
-                    
-                    if (jsdoDataSource) {
-                        // Determine if jsdoDataSource data items have any pending changes
-                        if (jsdoDataSource.hasChanges()) {
-                    		enableSubmit = true;
-                            enableErrors = false;
-                		}
-                        // else if (jsdo && jsdo.getErrors().length > 0) {
-                        else if (jsdo && jsdo[app.viewModels.Orders_of_Cust_dataViewModel.jsdoDataSource.transport.tableRef].getErrors().length > 0) {                        
-                    		enableErrors = true;
-                		} 
-                    }
-                    view.footer.find("#submitBtn").data("kendoMobileButton").enable(enableSubmit);
-                    view.footer.find("#errorBtn").data("kendoMobileButton").enable(enableErrors);
-                    //Always show border
-                    $('.buttonDiv').css('border','solid').css('border-width','1px').css('border-color', 'rgba(0,0,0,0.1)');
-
-                }
-            }
-            else {
-                // If useSubmit is false, don't bother hiding buttons. They're never displayed in this case
-                if (Orders_of_Cust_dataViewModel.useSubmit === true) {
-                    view.footer.find("#submitBtn").css("visibility", "hidden");
-                    view.footer.find("#errorBtn").css("visibility", "hidden");
-                }
-            } 
-        },                
+        },              
         
         clearData: function () {
             var that = this,
                 clistView; 
-            //that.jsdoModel = undefined;
-            //that.jsdoDataSource = undefined;
+            
             if (that.jsdoModel) {
                 that.jsdoModel.addRecords([], progress.data.JSDO.MODE_EMPTY);
             }
-            clistView = $("#orderofcustomerView").data("kendoMobileListView");
+            clistView = $("#childListView").data("kendoMobileListView");
             if (clistView && clistView.dataSource) {
                 // Clear ListView
                 clistView.dataSource.data([]);
@@ -221,19 +180,20 @@
         
         // Called when user selects "Delete" button in Delete modal view
         deleteRow: function(e) {
-            var Orders_of_Cust_dataViewModel = app.viewModels.Orders_of_Cust_dataViewModel,
-                jsdoDataSource = Orders_of_Cust_dataViewModel.jsdoDataSource;
+            var childDataViewModel = app.viewModels.childDataViewModel,
+                parentDataViewModel = app.viewModels.parentDataViewModel
+                jsdoDataSource = childDataViewModel.jsdoDataSource;
 
             $("#modalview-confirm").data("kendoMobileModalView").close();
             // Removes the specified data item from the data source
-            jsdoDataSource.remove(Orders_of_Cust_dataViewModel.selectedRow);
+            jsdoDataSource.remove(childDataViewModel.selectedRow);
             
-            if (Orders_of_Cust_dataViewModel.useSubmit === false) {
-                Orders_of_Cust_dataViewModel.doSync("delete");
+            if (parentDataViewModel.useSubmit === false) {
+                childDataViewModel.doSync("delete");
             }
             else {
-                Orders_of_Cust_dataViewModel.doListRefresh = true;
-                Orders_of_Cust_dataViewModel.backToView("#mainList");
+                childDataViewModel.doListRefresh = true;
+                childDataViewModel.backToView("#childList");
             }
         },
         
@@ -242,51 +202,7 @@
             // User canceled delete, so nothing to do but remove dialog
             $("#modalview-confirm").kendoMobileModalView("close");
             
-        },        
-        
-        //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::://
-          ///////// ::: Functions for errorDetail view ::: //////////////
-        //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::://
-        
-        onInitErrorListView: function(e) {      
-            var Orders_of_Cust_dataViewModel = this.model,
-                jsdo = Orders_of_Cust_dataViewModel.jsdoModel,
-                errorDataSource;
-           
-            try {
-                errorDataSource = new kendo.data.DataSource({
-                    transport: {
-        				read: function (options) { 	
-            				// options.success(jsdo.getErrors());
-                            options.success(jsdo[app.viewModels.Orders_of_Cust_dataViewModel.jsdoDataSource.transport.tableRef].getErrors());
-                            
-        				}
-    				}
-                });
-
-            	$("#submitErrorsListView").kendoMobileListView({
-                	dataSource: errorDataSource,
-                    pullToRefresh: true,
-                	appendOnRefresh: false,
-                    // error is property in object(s) returned from jsdo.getErrors()
-                    template: "#: error #"
-            	});
-                
-        	}
-        	catch (ex) {    
-            	console.log("Error in onInitErrorListView: " + ex);        
-        	}
-    	},
-        
-        onShowErrorListView: function(e) {
-            var errorListView;
-            
-           	errorListView = $("#submitErrorsListView").data("kendoMobileListView");
-            if (errorListView !== undefined) {
-            	errorListView.dataSource.read();                
-            }
-           
-    	},          
+        },               
         
         //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::://
           ///////// ::: Functions for Detail view ::: //////////////
@@ -294,11 +210,9 @@
                
         // Called for editDetail view's data-show event
         onShowDetailView: function(e) {
-            var Orders_of_Cust_dataViewModel = this.model;
+            var parentDataViewModel = app.viewModels.parentDataViewModel;
             
-            console.log("From onShowDetailView");
-            
-        	Orders_of_Cust_dataViewModel.displayListButtons(e.view, false);
+        	parentDataViewModel.displayListButtons(e.view, false);
         },
         
         
@@ -308,31 +222,33 @@
         
         // Called for editOrderDetail view's data-init event
         onInitEditDetailView: function(e) { 
-            var Orders_of_Cust_dataViewModel = this.model; 
+            var childDataViewModel = this.model,
+                parentDataViewModel = app.viewModels.parentDataViewModel; 
             
             // If backend does not have a submit, then CUD operations will be sent to be when button selected
-            if (!Orders_of_Cust_dataViewModel.useSubmit) {       
+            if (!parentDataViewModel.useSubmit) {       
             	$("#editDetailDoneButton").html("Save");
             }
-            app.views.editOrderDetailView = e.view;
+            app.views.childDetailView = e.view;
         },
         
          // Called for editDetail view's data-show event
         onShowEditDetailView: function(e) {
              var newRow,
-                 Orders_of_Cust_dataViewModel = this.model,
+                 childDataViewModel = this.model,
+                 parentDataViewModel = app.viewModels.parentDataViewModel,
                  tabstrip,
                  errorMsg = undefined;    
             
             if (e.view.params.addMode && e.view.params.addMode === "true") {
-                Orders_of_Cust_dataViewModel.addMode = true;
-                Orders_of_Cust_dataViewModel.displayListButtons(e.view, false);
+                childDataViewModel.addMode = true;
+                parentDataViewModel.displayListButtons(e.view, false);
                 // Add a data item to the data source
                 newRow = this.jsdoDataSource.add({});
                 
                 if (newRow) {
                 	// Copy default values, if any..
-                    Orders_of_Cust_dataViewModel.set("selectedRow", newRow);   
+                    childDataViewModel.set("selectedRow", newRow);   
             	}
             	else {
                     errorMsg = "Error adding new record";
@@ -342,7 +258,7 @@
                 e.view.footer.find("#deleteBtn").css("visibility", "visible");
                 
             	// Save in case user hits Cancel button
-                Orders_of_Cust_dataViewModel.copyRow(Orders_of_Cust_dataViewModel.selectedRow, Orders_of_Cust_dataViewModel.origRow);
+                childDataViewModel.copyRow(childDataViewModel.selectedRow, childDataViewModel.origRow);
             }
             
             if (errorMsg) {
@@ -356,7 +272,7 @@
                 app.showError(errorMsg);
             }
             else {
-                Orders_of_Cust_dataViewModel.onEditDetailView = true;
+                childDataViewModel.onEditDetailView = true;
             
             	tabstrip = e.view.footer.find("#navigateTab").data("kendoMobileTabStrip");
             	// Clear out selected tab, so user can't reselect it while on editView
@@ -366,31 +282,32 @@
         
         // Called for editDetail view's data-hide event
         onHideEditDetailView: function(e) {
-            Orders_of_Cust_dataViewModel.onEditDetailView = false;
+            childDataViewModel.onEditDetailView = false;
             
             e.view.footer.find("#deleteBtn").css("visibility", "hidden");
         },
         
         // Called when user selects "Cancel" button in editDetail view
         cancelEditDetail: function(e) {
-            var Orders_of_Cust_dataViewModel = app.viewModels.Orders_of_Cust_dataViewModel,
-                jsdoDataSource = Orders_of_Cust_dataViewModel.jsdoDataSource;
+            var childDataViewModel = app.viewModels.childDataViewModel,
+                parentDataViewModel = app.viewModels.parentDataViewModel
+                jsdoDataSource = childDataViewModel.jsdoDataSource;
             
-         	if (Orders_of_Cust_dataViewModel.addMode === true) {
+         	if (childDataViewModel.addMode === true) {
             	// Remove record just added to jsdoDataSource 
-                jsdoDataSource.remove(Orders_of_Cust_dataViewModel.selectedRow);
-				Orders_of_Cust_dataViewModel.backToView("#list");
+                jsdoDataSource.remove(childDataViewModel.selectedRow);
+				childDataViewModel.backToView("#childList");
             } 
             else {
-                if (Orders_of_Cust_dataViewModel.useSubmit === false) {
+                if (parentDataViewModel.useSubmit === false) {
                     // Determine if jsdoDataSource data items have any pending changes
                     if (jsdoDataSource.hasChanges()) {
                         // Cancel pending changes in the data source
                         jsdoDataSource.cancelChanges();
                         
                         // Reget current row, now with orig data, to restore orig data to controls
-                        var dataItem = jsdoDataSource.get(Orders_of_Cust_dataViewModel.selectedRow.id);
-                        Orders_of_Cust_dataViewModel.set("selectedRow", dataItem); 
+                        var dataItem = jsdoDataSource.get(childDataViewModel.selectedRow.id);
+                        childDataViewModel.set("selectedRow", dataItem); 
                     }
                 }
                 else {
@@ -398,21 +315,22 @@
                 	// possible prior changes to this row
                     
                     // This will update the DataSource as well as selectedRow object with the original values
-                    Orders_of_Cust_dataViewModel.updateSelectedRow(Orders_of_Cust_dataViewModel.origRow);
+                    childDataViewModel.updateSelectedRow(childDataViewModel.origRow);
                 }
                 
-                Orders_of_Cust_dataViewModel.backToView("#detail"); 
+                childDataViewModel.backToView("#childDetail"); 
             }    
         },
         
          // Called when user selects "Done" button in editOrderDetails view/page
         doneEditDetail: function(e) {
-        	var Orders_of_Cust_dataViewModel = app.viewModels.Orders_of_Cust_dataViewModel,              
-              
-                jsdoDataSource = Orders_of_Cust_dataViewModel.jsdoDataSource;
+        	var parentListView = app.views.parentListView,
+                childDataViewModel = app.viewModels.childDataViewModel,              
+                parentDataViewModel = app.viewModels.parentDataViewModel
+                jsdoDataSource = childDataViewModel.jsdoDataSource;
             
-            if (Orders_of_Cust_dataViewModel.useSubmit === false) {
-                Orders_of_Cust_dataViewModel.doSync(Orders_of_Cust_dataViewModel.addMode ?  "create" : "update" );
+            if (parentDataViewModel.useSubmit === false) {
+                childDataViewModel.doSync(childDataViewModel.addMode ?  "create" : "update" );
             }
             else {
                 
@@ -424,20 +342,22 @@
                     
                     console.log("There are changes made to Child Records - Orders ...")
                     jsdoDataSource.sync();
-                    // Orders_of_Cust_dataViewModel.doSync("update");
+                    parentListView.footer.find("#submitBtn").data("kendoMobileButton").enable(true);
+                    // Keep track for enabling Submit button
+                    childDataViewModel.hasChanges = true;
                 }                
                 
-                Orders_of_Cust_dataViewModel.doListRefresh = true;                
-                Orders_of_Cust_dataViewModel.backToView("views/OrdersofCustomer/ordersofCustomer.html"); 
+                childDataViewModel.doListRefresh = true;
+                childDataViewModel.backToView("views/childViews/childListView.html");        
             } 
         },
         
         // navView - specify view to navigate to
         backToView: function(navView) {
-            var Orders_of_Cust_dataViewModel = app.viewModels.Orders_of_Cust_dataViewModel;
+            var childDataViewModel = app.viewModels.childDataViewModel;
                 
             // Reset to default, which is false
-           	Orders_of_Cust_dataViewModel.addMode = false;
+           	childDataViewModel.addMode = false;
             
             app.mobileApp.navigate(navView);
         },        
@@ -445,13 +365,13 @@
         // Called when useSubmit property is set to false, so only single row is involved.
         // It calls the DataSource sync() function (for individual create/update/delete operation)
 		doSync: function(operation) {    
-            var Orders_of_Cust_dataViewModel = app.viewModels.Orders_of_Cust_dataViewModel,
-                jsdoDataSource = Orders_of_Cust_dataViewModel.jsdoDataSource,
+            var childDataViewModel = app.viewModels.childDataViewModel,
+                parentDataViewModel = app.viewModels.parentDataViewModel,
+                jsdoDataSource = childDataViewModel.jsdoDataSource,
                 promise;
             
             try { 
-                
-                Orders_of_Cust_dataViewModel.currentOperation = operation;
+                childDataViewModel.currentOperation = operation;
                 
                 // sync() saves the data item change (either update, delete, or create),
                 // since jsdoDataSource is configured to a remote data service, change is 
@@ -461,61 +381,61 @@
                     var dataItem;
                     
                     console.log(operation + " was successful");
-                    Orders_of_Cust_dataViewModel.doListRefresh = true;
+                    childDataViewModel.doListRefresh = true;
                     
                      if (operation === "delete" || operation === "update") {
-                    	Orders_of_Cust_dataViewModel.backToView("#mainList");
+                    	childDataViewModel.backToView("#childList");
                     }
                     else {
                         // Reject selected row, in case backend updated its data
-                       	dataItem = jsdoDataSource.get(Orders_of_Cust_dataViewModel.selectedRow.id);
+                       	dataItem = jsdoDataSource.get(childDataViewModel.selectedRow.id);
                        
                         // TO_DO: Need to investigate further. EmpNum field is set on backend, returned to client.
                         // So here trying to bind new data to control so its will be displayed in detailView and editDetailView.
                         // But empNum is not always displayed in control, once user hits "Save" button.
-                        Orders_of_Cust_dataViewModel.updateSelectedRow(dataItem);
+                        childDataViewModel.updateSelectedRow(dataItem);
                         
-                        //dataViewModel.backToView("#detail"); 
-                        Orders_of_Cust_dataViewModel.backToView("views/OrdersofCustomer/orderDetails.html"); 
+                        //childDataViewModel.backToView("#childDetail"); 
+                        //childDataViewModel.backToView("views/OrdersofCustomer/orderDetails.html"); 
                     }
                    	
                 });
 
                	promise.fail( function(xhr) {
                		var errorMsg;                   
-                   	errorMsg = Orders_of_Cust_dataViewModel.normalizeError(xhr.request);   
-                    errorMsg = "ERROR when doing " + operation + " operation:\n\n" + errorMsg;
+                   	errorMsg = parentDataViewModel.normalizeError(xhr.request);   
+                    errorMsg = "ERROR on " + operation + " operation:\n\n" + errorMsg;
                     console.log(errorMsg);
                     
                     // modalview uses asynchronous model, so specify code here to be run after 
                     // display of error message to user
                     app.closeDisplayMessageFn = 
                         function() {
-                       		var Orders_of_Cust_dataViewModel = app.viewModels.Orders_of_Cust_dataViewModel,
-                			    jsdoDataSource = Orders_of_Cust_dataViewModel.jsdoDataSource,
+                       		var childDataViewModel = app.viewModels.childDataViewModel,
+                			    jsdoDataSource = childDataViewModel.jsdoDataSource,
                                 saveSelectedRow = {},
                                 dataItem;
                         
-                        	if (Orders_of_Cust_dataViewModel.currentOperation === "delete") {
+                        	if (childDataViewModel.currentOperation === "delete") {
                                 // Calling cancelChanges(); deleted row remains in jsdoDataSource._destroyed array; need to remove
                                 jsdoDataSource.cancelChanges();
-                                Orders_of_Cust_dataViewModel.backToView("#list");
+                                childDataViewModel.backToView("#list");
                     		}
-                        	else if (Orders_of_Cust_dataViewModel.currentOperation === "update") {
+                        	else if (childDataViewModel.currentOperation === "update") {
                                 // Save edited data. After we resync dataSource with jsdo, want to put back
                                 // edits into controls, so user can modify
-                				Orders_of_Cust_dataViewModel.copyRow(Orders_of_Cust_dataViewModel.selectedRow, saveSelectedRow);
+                				childDataViewModel.copyRow(childDataViewModel.selectedRow, saveSelectedRow);
                                 
                                 // On failure of datasource.sync(), pending changes persist, so read data from jsdo,
                                 // cancelChanges() won't do this for updates once sync() is done
                                 // (since jsdoDataSource._pristineData no longer has orig data)
-                                Orders_of_Cust_dataViewModel.doRead(true);
+                                childDataViewModel.doRead(true);
                                 
                                 // reget current row
-                                dataItem = jsdoDataSource.get(Orders_of_Cust_dataViewModel.selectedRow.id);
-                                Orders_of_Cust_dataViewModel.set("selectedRow", dataItem); 
+                                dataItem = jsdoDataSource.get(childDataViewModel.selectedRow.id);
+                                childDataViewModel.set("selectedRow", dataItem); 
                                 
-                                Orders_of_Cust_dataViewModel.updateSelectedRow(saveSelectedRow);
+                                childDataViewModel.updateSelectedRow(saveSelectedRow);
                             }                        	
                     };
                     app.showError(errorMsg);   
@@ -529,8 +449,8 @@
         },
         
         doRead: function(readLocal) {
-             var Orders_of_Cust_dataViewModel = app.viewModels.Orders_of_Cust_dataViewModel,
-                jsdoDataSource = Orders_of_Cust_dataViewModel.jsdoDataSource;
+             var childDataViewModel = app.viewModels.childDataViewModel,
+                 jsdoDataSource = childDataViewModel.jsdoDataSource;
             
             // readLocal property tells jsdoDataSource transport where to get data from underlying jsdo,
             // either from local jsdo memory or from its corresponding back end service
@@ -539,59 +459,26 @@
             jsdoDataSource.read();
      	},
         
-        normalizeError: function (request) {        
-        	var errorMsg = "",
-                jsdo = request.jsdo,
-           	    response = request.response,
-                // lastErrors = jsdo.getErrors();
-              lastErrors = jsdo[app.viewModels.Orders_of_Cust_dataViewModel.jsdoDataSource.transport.tableRef].getErrors();
-            
-            /* Try to get the error string from _error object. Then check if
-             * it was a data error, otherwise see if the error came as a string in the body. 
-             * If nothing is set, then just get the native statusTest */        
-            
-            if (response && response._errors && response._errors.length > 0) {   
-                errorMsg = response._errors[0]._errorMsg;
-            }
-            else if (lastErrors.length === 1) {
-                errorMsg = lastErrors[0].error;
-			}
-            else if (lastErrors.length > 1) {
-                errorMsg = "Submit failed with " + lastErrors.length + (lastErrors.length == 1 ? " error." : " errors.");
-			}
-            
-            if (errorMsg === "") {
-                if (request.xhr.responseText.substring(0,6) !== "<html>")  {
-                    errorMsg = request.xhr.responseText;
-                }  
-                if (errorMsg === "") {
-                    errorMsg = request.xhr.statusText;
-                }      
-            }   
-            
-            return errorMsg;   
-		},
-        
         //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::://        
-        		////////////// Utility Functions //////////////
-        	// NOTE: These functtions are used as part of Update and Delete operations
+        ////////////// Utility Functions //////////////
+        // NOTE: These functions are used as part of Update and Delete operations
         //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::://
         
         updateSelectedRow: function(sourceRow) {
-           var Orders_of_Cust_dataViewModel = app.viewModels.Orders_of_Cust_dataViewModel,
-               schema = Orders_of_Cust_dataViewModel.jsdoModel[this.jsdoDataSource.transport.tableRef].getSchema(),
+           var childDataViewModel = app.viewModels.childDataViewModel,
+               schema = childDataViewModel.jsdoModel[this.jsdoDataSource.transport.tableRef].getSchema(),
            	   field,
                i;
             
             for (i = 0; i < schema.length; i++) {
                 field = schema[i].name;
-                Orders_of_Cust_dataViewModel.set("selectedRow." + field, sourceRow[field]); 
+                childDataViewModel.set("selectedRow." + field, sourceRow[field]); 
             }
         },        
         
         copyRow: function(source, target) {
-           var Orders_of_Cust_dataViewModel = app.viewModels.Orders_of_Cust_dataViewModel,
-               schema = Orders_of_Cust_dataViewModel.jsdoModel[this.jsdoDataSource.transport.tableRef].getSchema(),
+           var childDataViewModel = app.viewModels.childDataViewModel,
+               schema = childDataViewModel.jsdoModel[this.jsdoDataSource.transport.tableRef].getSchema(),
            	   field,
                i;
             
@@ -611,7 +498,7 @@
                 	}        
                 	else if (typeof source[field] === 'object') {
                     	var newObject = source[field] instanceof Array ? [] : {};
-                    	app.viewModels.Orders_of_Cust_dataViewModel.copyRow(source[field], newObject);
+                    	app.viewModels.childDataViewModel.copyRow(source[field], newObject);
                     	target[field] = newObject;
                 	}
                 	else
@@ -622,7 +509,6 @@
         
     });    
     
-    parent.Orders_of_Cust_dataViewModel = Orders_of_Cust_dataViewModel;    
-    
+    parent.childDataViewModel = childDataViewModel;     
     
 })(app.viewModels);

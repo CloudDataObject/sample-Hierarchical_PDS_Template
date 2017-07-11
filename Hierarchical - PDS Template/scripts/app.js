@@ -88,17 +88,18 @@
     };
 
     app.showError = function (message) {
-        if (navigator && navigator.notification) {
-            navigator.notification.alert(message);
-        } else {
-            // if run directly in browser
-            alert(message);
-        }
+        app.showMessage("Error", message);
+    };
+    
+    app.showMessage = function (title, message) {
+        document.getElementById("modalViewTitle").innerHTML = title;
+        document.getElementById("modalViewMessage").innerHTML = message;
+        $("#modalview-displayMsg").kendoMobileModalView("open");          
+
     };
     
     app.changeTitle =  function (customTitle) {
         app.mobileApp.view().header.find('[data-role="navbar"]').data('kendoMobileNavBar').title(customTitle);
-        //$("#navbar").data("kendoMobileNavBar").title(customTitle);
        };
 
     app.onSelectTab = function (e) {
@@ -115,10 +116,10 @@
     };
     
     app.onShowHomeView = function (e) {
-        var dataViewModel = app.viewModels.dataViewModel;
+        var parentDataViewModel = app.viewModels.parentDataViewModel;
         
         // Hide refresh button
-        dataViewModel.displayListButtons(e.view, false);
+        parentDataViewModel.displayListButtons(e.view, false);
     };
     
     app.onCloseDisplayMessage = function(e) {
