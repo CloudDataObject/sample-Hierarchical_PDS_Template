@@ -8,7 +8,7 @@ The sample makes use of the JSDO dialect for the Kendo UI DataSource to provide 
 utilizes the JavaScript data object (JSDO) to access the data and operations of a resource provided by a remote data service.
 The resource should represent a DataSet with the parent and child table and their relationship.
 
-The app contains 2 JSDO dialects (JSDO DataSources), one representing the parent, and the other representing the child. 
+The app contains 2 JSDO DataSources, one representing the parent, and the other representing the child. 
 Both JSDO DataSources use a single instance of a JSDO which is the client representation of the resource.
 
 Child JSDO DataSource:
