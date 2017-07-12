@@ -27,12 +27,8 @@
         <!-- Libraries used -->
         <script src="kendo/js/jquery.min.js"></script>
         <script src="kendo/js/kendo.mobile.min.js"></script>
-        <script type="text/javascript" src="cordova.js"></script>
-        
-        <!--  TO_DO: Change to minified file when done testing
+        <script type="text/javascript" src="cordova.js"></script>     
         <script src="lib/progress.all.min.js"></script>
-         -->
-        <script src="lib/progress.all.js"></script>
 
         <!-- JavaScript files - app.js must be first -->
         <script type="text/javascript" src="scripts/app.js"></script>
@@ -40,8 +36,8 @@
  
         <!-- ViewModels here -->
         <script src="viewModels/loginViewModel.js"></script>
-        <script src="viewModels/dataViewModel.js"></script>
-        <script src="viewModels/Orders_of_Cust_dataViewModel.js"></script>
+        <script src="viewModels/parentDataViewModel.js"></script>
+        <script src="viewModels/childDataViewModel.js"></script>
     </head>
     <body>
         <!-- Layout -->
@@ -58,15 +54,15 @@
             <!-- Footer -->
             <div data-role="footer">
                  <div class=buttonDiv>
-                    <a class="dataButton" id="deleteBtn"  data-role="button" data-click="app.viewModels.Orders_of_Cust_dataViewModel.verifyDoDelete">Delete</a>
-                    <a class="dataButton" id="submitBtn"  data-role="button" data-click="app.viewModels.dataViewModel.submit">Submit</a>
-                    <a class="dataButton" id="errorBtn"   data-role="button" href="views/OrdersofCustomer/errorOrdersofCustomerEdit.html">Errors</a>
+                    <a class="dataButton" id="deleteBtn"  data-role="button" data-click="app.viewModels.childDataViewModel.verifyDoDelete">Delete</a>
+                    <a class="dataButton" id="submitBtn"  data-role="button" data-click="app.viewModels.parentDataViewModel.submit">Submit</a>
+                    <a class="dataButton" id="errorBtn"   data-role="button" href="views/errorListView.html">Errors</a>
                 </div>
                 
                 <div data-role="tabstrip" id="navigateTab" data-select="app.onSelectTab">
                     <a href="views/home.html" data-icon="home">Home</a>
                     <a href="views/loginView.html" data-icon="contacts" id="loginIcon">Login</a>
-                    <a href="views/listView.html" data-icon="search" id="listIcon">List</a>
+                    <a href="views/parentListView.html" data-icon="search" id="listIcon">List</a>
                 </div>
             </div>
         </div>

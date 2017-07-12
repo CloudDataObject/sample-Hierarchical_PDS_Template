@@ -1,0 +1,40 @@
+
+<!-- Child List view -->
+
+<div id="childList"
+     data-role="view" 
+     data-style="inset" 
+     data-title="Customer Orders" 
+     data-init="app.viewModels.childDataViewModel.onInit"
+     data-show="app.viewModels.childDataViewModel.onBeforeShow"
+     data-model="app.viewModels.childDataViewModel">
+    <ul id="childListView" 
+        data-role="listview" data-style="inset">
+    </ul>        
+    
+     <header data-role="header">
+        
+        <div data-role="navbar">
+            <a class="nav-button" data-role="button"  href="views/parentListView.html" data-align="left">Back</a>              
+        </div>
+    </header>    
+</div>
+
+<div id="confirmRefresh" 
+     data-role="modalview">
+     <div data-role="header">
+          <div data-role="navbar">
+              <span>Unsaved Changes</span>
+          </div>
+     </div>
+
+     <div id="msgText">
+       <p>Press Cancel so you can save the changes first.</p>
+       <p>Press Refresh to continue without saving.</p>
+     </div>
+
+     <p align="center">
+        <button class="dlgButton" data-click="app.viewModels.childDataViewModel.cancelRefresh" data-role="button">Cancel</button>
+        <button class="dlgButton" data-click="app.viewModels.childDataViewModel.continueRefresh" data-role="button">Refresh</button>
+     </p>
+</div>
